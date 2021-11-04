@@ -21,6 +21,8 @@ from typing import Mapping, Tuple
 
 import packaging.version
 import sqlalchemy.sql.default_comparator
+import sqlalchemy.sql.expression
+import sqlalchemy.sql.operators
 import sqlalchemy.sql.sqltypes
 import sqlalchemy.types
 
@@ -107,6 +109,31 @@ class STRUCT(sqlalchemy.sql.sqltypes.Indexable, sqlalchemy.types.UserDefinedType
                 return self[name]
 
     comparator_factory = Comparator
+
+class struct(sqlalchemy.sql.expression.ClauseList, sqlalchemy.sql.expression.ColumnElement):
+    """ Create a BigQuery struct literal from a collection of named expressions/clauses.
+    """
+    # NOTE: Struct subfields aren't currently propagated/validated.
+
+    __visit_name__ = "struct"
+
+    def __init__(self, clauses, field=None, **kw):
+        self.field = field
+        self.type = STRUCT()
+        super().__init__(*clauses, **kw)
+
+    def _bind_param(self, operator, obj, _assume_scalar=False, type_=None):
+        if operator is sqlalchemy.sql.operators.getitem:
+            # TODO:
+            # - Validate field in clauses (or error if no clauses)
+            # - If the field is a sub-struct, return with all clauses, otherwise none.
+            return struct([], field=obj)
+
+    def self_group(self, against=None):
+        if not self.field and against in (sqlalchemy.sql.operators.getitem,):
+            return sqlalchemy.sql.expression.Grouping(self)
+        else:
+            return self
 
 
 # In the implementations of _field_index below, we're stealing from
