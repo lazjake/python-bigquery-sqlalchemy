@@ -578,8 +578,8 @@ class BigQueryTypeCompiler(GenericTypeCompiler):
     visit_CHAR = visit_NCHAR = visit_STRING
     visit_VARCHAR = visit_NVARCHAR = visit_TEXT = visit_STRING
 
-    def visit_ARRAY(self, type_, **kw):
-        return "ARRAY<{}>".format(self.process(type_.item_type, **kw))
+    # def visit_ARRAY(self, type_, **kw):
+    #     return "ARRAY<{}>".format(self.process(type_.item_type, **kw))
 
     def visit_BINARY(self, type_, **kw):
         if type_.length is not None:
