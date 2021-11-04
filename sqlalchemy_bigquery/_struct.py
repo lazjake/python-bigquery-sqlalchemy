@@ -26,7 +26,11 @@ import sqlalchemy.sql.operators
 import sqlalchemy.sql.sqltypes
 import sqlalchemy.types
 
+from sqlalchemy.dialects.postgresql import array
+
 from . import base
+
+__all__ = ["array", "struct"]
 
 sqlalchemy_1_4_or_more = packaging.version.parse(
     sqlalchemy.__version__
@@ -123,6 +127,7 @@ class struct(sqlalchemy.sql.expression.ClauseList, sqlalchemy.sql.expression.Col
         super().__init__(*clauses, **kw)
 
     def _bind_param(self, operator, obj, _assume_scalar=False, type_=None):
+        print(f"BIND {operator}, {obj}")
         if operator is sqlalchemy.sql.operators.getitem:
             # TODO:
             # - Validate field in clauses (or error if no clauses)
