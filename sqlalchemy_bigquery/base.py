@@ -568,9 +568,11 @@ class BigQueryTypeCompiler(GenericTypeCompiler):
     visit_VARCHAR = visit_NVARCHAR = visit_TEXT = visit_STRING
 
     def visit_ARRAY(self, type_, **kw):
+        print("HOORAY BOOO")
         return "ARRAY<{}>".format(self.process(type_.item_type, **kw))
 
     def visit_array(self, element, **kw):
+        print("ARRAY HURRAH")
         return "[%s]" % self.visit_clauselist(element, **kw)
 
     def visit_struct(self, element, within_columns_clause=True, **kw):
