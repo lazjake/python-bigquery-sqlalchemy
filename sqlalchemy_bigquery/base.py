@@ -191,16 +191,6 @@ class BigQueryCompiler(_struct.SQLCompiler, SQLCompiler):
             kwargs["compile_kwargs"] = util.immutabledict({"include_table": False})
         super(BigQueryCompiler, self).__init__(dialect, statement, *args, **kwargs)
 
-    def visit_array(self, element, **kw):
-        return "[%s]" % self.visit_clauselist(element, **kw)
-
-    def visit_struct(self, element, within_columns_clause=True, **kw):
-        if element.field:
-            return self.preparer.quote_column(element.field)
-        kw["within_columns_clause"] = True
-        values = self.visit_clauselist(element, **kw)
-        return "struct(%s)" % values
-
     def visit_insert(self, insert_stmt, asfrom=False, **kw):
         # The (internal) documentation for `inline` is confusing, but
         # having `inline` be true prevents us from generating default
@@ -579,6 +569,16 @@ class BigQueryTypeCompiler(GenericTypeCompiler):
 
     def visit_ARRAY(self, type_, **kw):
         return "ARRAY<{}>".format(self.process(type_.item_type, **kw))
+
+    def visit_array(self, element, **kw):
+        return "[%s]" % self.visit_clauselist(element, **kw)
+
+    def visit_struct(self, element, within_columns_clause=True, **kw):
+        if element.field:
+            return self.preparer.quote_column(element.field)
+        kw["within_columns_clause"] = True
+        values = self.visit_clauselist(element, **kw)
+        return "struct(%s)" % values
 
     def visit_BINARY(self, type_, **kw):
         if type_.length is not None:
